@@ -1,0 +1,47 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.18;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "hardhat/console.sol";
+
+contract CricketToken is ERC20, Ownable {
+    event MaterialRedeemed(address indexed account, string material, uint256 sum);
+
+    mapping(string => uint256) public materialCosts;
+    mapping(address => string) public gifteeSelectedMaterials;
+
+    string[] public availableMaterials;
+
+    constructor(address initialOwner) ERC20("CricketToken", "CTK") Ownable(initialOwner) {}
+
+    function mint (address to, uint256 sum) public onlyOwner {
+        _mint(to, sum);
+    }
+
+    function burn (uint256 sum) public {
+        require(sum > 0, "The sum to destroy must be greater than zero");
+        require(balanceOf(msg.sender) >= sum, "Insufficient funds for token destruction");
+        _burn(msg.sender, sum);
+    }
+
+    function redeemMaterial(string memory materialName) public payable {
+        materialCosts["CRICKET_BAT"] = 100;
+        materialCosts["CRICKET_BALL"] = 50;
+        materialCosts["CRICKET_GLOVES"] = 80;
+        materialCosts["CRICKET_HELMET"] = 120;
+
+        require(materialCosts[materialName] > 0, "Invalid material selected");
+        require(balanceOf(msg.sender) >= materialCosts[materialName], "Insufficient funds for material redemption");
+        _burn(msg.sender, materialCosts[materialName]);
+        gifteeSelectedMaterials[msg.sender] = materialName;
+        emit MaterialRedeemed(msg.sender, materialName, materialCosts[materialName]);
+    }
+
+    function transferTokens(address giftee, uint256 sum) external {
+        require(giftee != address(0), "Invalid giftee address provided");
+        require(balanceOf(msg.sender) >= sum, "Insufficient funds for token transfer");
+        _transfer(msg.sender, giftee, sum);
+    }
+}
