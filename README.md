@@ -63,3 +63,8 @@ cricketToken.transferTokens(addressToTransfer, 30);
 The contract emits the following event:
 - `MaterialRedeemed`: Triggered when a user redeems tokens for a cricket material. It includes the account address, the redeemed material, and the associated cost.
 
+## Author
+
+Pranav Chaitanya
+
+craj0314@gmail.com
